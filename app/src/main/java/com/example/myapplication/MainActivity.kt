@@ -1,9 +1,11 @@
 package com.example.myapplication
 
+import android.inputmethodservice.Keyboard
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,8 +68,12 @@ class MainActivity : ComponentActivity() {
 fun TipLayout(modifier: Modifier = Modifier) {
 
     var amountInput by remember { mutableStateOf("") }
+    var tipInput by remember { mutableStateOf("") }
+
     var amount = amountInput.toDoubleOrNull()?:0.0
-    var tip = calculateTip(amount)
+
+    var tipPercent = tipInput.toDoubleOrNull()?:0.0
+    var tip = calculateTip(amount, tipPercent)
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -85,10 +93,25 @@ fun TipLayout(modifier: Modifier = Modifier) {
                 .align(Alignment.Start)
         )
         EditNumberField(
+            label = R.string.bill_amount,
             value = amountInput,
             onValueChange = {
                 amountInput = it
             },
+            modifier = Modifier
+                .padding(32.dp)
+                .fillMaxWidth()
+        )
+        EditNumberField(
+            label = R.string.how_was_the_service,
+            value = tipInput,
+            onValueChange = {
+                tipInput = it
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
             modifier = Modifier
                 .padding(32.dp)
                 .fillMaxWidth()
@@ -108,18 +131,25 @@ fun TipLayout(modifier: Modifier = Modifier) {
 
 @Composable
 fun EditNumberField(
+    @StringRes label:Int,
     value : String,
     onValueChange : (String) -> Unit,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default.copy(
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Next
+    ),
     modifier: Modifier = Modifier) {
     TextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = keyboardOptions,
         label = {
-            Text(text = stringResource(R.string.bill_amount))
+            Text(stringResource(label))
                 },
         modifier = modifier)
+
 }
 
 @Preview(showBackground = true)
